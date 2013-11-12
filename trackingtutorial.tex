@@ -1,0 +1,150 @@
+\documentclass{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\title{A Tutorial on Tracking}
+\author{Philip Greggory Lee}
+\institute{
+ Electrical Engineering and Computer Science\\
+ Northwestern University\\
+ Evanston, IL 60208
+}
+
+\AtBeginSection
+{
+ \begin{frame}{Outline}
+  \tableofcontents[currentsection]
+ \end{frame}
+ \addtocounter{framenumber}{-1}
+}
+
+\providecommand{\defeq}{\stackrel{\Delta}{=}}
+\providecommand{\abs}[1]{\left\lvert #1 \right\rvert}
+\providecommand{\norm}[1]{\left\lVert #1 \right\rVert}
+
+\begin{document}
+
+\begin{frame}
+ \titlepage
+\end{frame}
+
+\begin{frame}{Copyright 2013 Philip G. Lee}
+ \begin{center}
+ Permission is granted to copy, distribute and/or modify this document
+ under the terms of the GNU Free Documentation License, Version 1.3
+ or any later version published by the Free Software Foundation;
+ with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+ A copy of the license is included in the file \texttt{COPYING.GFDL.tex}.
+ \end{center}
+\end{frame}
+
+\begin{frame}{Outline}
+ \tableofcontents
+\end{frame}
+\addtocounter{framenumber}{-1}
+
+\section{Tracking in Theory}%==================================================
+
+\begin{frame}{A Simple Theoretical Model}
+ \begin{itemize}
+  \item Everywhere in this tutorial, $x$ refers to the ``state'' of some object,
+        and $y$ refers to an observation of the state $x$.
+  \item Unless otherwise noted, you may think of $x$ as the $(u,v)$ pixel position
+        of some object.
+  \item The most basic model we can have for tracking is to assume that we can
+        always get an observation $y_t$ of $x_t$ at each frame $t$.
+  \item In that case, the tracking problem is to obtain
+  \begin{align}
+   &p(x_t \mid y_t,\dotsc,y_1) \; \; \text{from} \; \; p(x_{t-1} \mid y_{t-1},\dotsc,y_1). \nonumber
+  \end{align}
+ \end{itemize}
+\end{frame}
+
+\begin{frame}{Hidden Markov Model}
+ \begin{itemize}
+  \item Further, a standard simplifying assumption is that the process is a
+        hidden Markov model (HMM), with hidden states $x$ and observations $y$.
+  \item This implies
+  \begin{align}
+   &p(y_t \mid x_t,y_{t-1},\dotsc,y_1) = p(y_t \mid x_t), \; \text{and} \nonumber \\
+   &p(x_t \mid x_{t-1},\dotsc,x_1) = p(x_t \mid x_{t-1}). \nonumber
+  \end{align}
+  \item Together with bayes rule, this tells us that
+  \begin{align}
+   p(x_t \mid y_t,\dotsc,y_1) \propto p(y_t \mid x_t) p(x_t \mid y_{t-1},\dotsc,y_1).
+  \end{align}
+  \item In English, the state posterior is proportional to the measurement distribution
+        multiplied by the state prediction.
+ \end{itemize}
+\end{frame}
+
+\begin{frame}{State Prediction}
+ \begin{itemize}
+  \item How can we get the state prediction for $x_t$ \textit{without}
+        observation $y_t$?
+  \item We can write it as
+  \begin{align}
+   p(x_t \mid y_{t-1},\dotsc,y_1) = \int p(x_t \mid x_{t-1}) p(x_{t-1} \mid y_{t-1},\dotsc,y_1) dx_{t-1} \nonumber
+  \end{align}
+  \item In English, the state prediction is the marginalization of the
+        dynamical model multiplied with the previous state posterior over the
+        previous state.
+ \end{itemize}
+\end{frame}
+
+\begin{frame}{Tracking}
+ \begin{enumerate}
+  \item Predict $x_t$ using dynamical model and previous state estimation distribution.
+  \begin{align}
+   p(x_t \mid y_{t-1},\dotsc,y_1) = \int p(x_t \mid x_{t-1}) p(x_{t-1} \mid y_{t-1},\dotsc,y_1) dx_{t-1} \nonumber
+  \end{align}
+  \item Observe $y_t$ somehow.
+  \item Use observation, measurement distribution, and previous state
+        estimation distribution to construct current state estimation distribution.
+  \begin{align}
+   p(x_t \mid y_t,\dotsc,y_1) \propto p(y_t \mid x_t) p(x_t \mid y_{t-1},\dotsc,y_1).
+  \end{align}
+  \item Estimate a single value for $x_t$ with maximum likelihood estimation.
+  \begin{align}
+   \hat{x}_t = \arg\max_{x_t} p(x_t \mid y_t,\dotsc,y_1) \nonumber
+  \end{align}
+ \end{enumerate}
+\end{frame}
+
+\begin{frame}{Why is This Hard?}
+ \begin{itemize}
+  \item First, how do you get $y_t$ in practice? Not obvious.
+  \item For good tracking, $p(x_t \mid y_t,\dotsc,y_1)$ should be strongly peaked
+        so that we can accurately estimate the state.
+  \item The meeasurement distributions
+        $p(y_t \mid x_t)$ are usually non-Gaussian and more ``spread out'' than we
+        would like.
+  \item This makes the state estimation distribution also spread out.
+  \item Further, to predict the state, we have to marginalize over all previous
+        possible state values with a dynamical model $p(x_t \mid x_{t-1})$.
+  \item In general, the dynamical model is also more spread out than we like,
+        making the state estimation spread out.
+  \item We just can't measure things as well as we like, and those errors
+        propagate and grow via the integral in the marginalization.
+ \end{itemize}
+\end{frame}
+
+\begin{frame}{Example}
+ 
+\end{frame}
+
+\section{Kalman Filtering}%====================================================
+
+\begin{frame}
+ \begin{itemize}
+  \item Kalman filtering is an approach to solve the tracking problem if
+        \textbf{all} of the involved distributions are Gaussian.
+ \end{itemize}
+
+\end{frame}
+
+
+\end{document}
